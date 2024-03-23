@@ -1,0 +1,8 @@
+spring.application.name: test_springboot3
+
+spring:
+  docker:
+    compose:
+      enabled: false
+
+
