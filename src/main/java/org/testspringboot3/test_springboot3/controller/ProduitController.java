@@ -1,13 +1,12 @@
 package org.testspringboot3.test_springboot3.controller;
 
+import java.util.Optional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.testspringboot3.test_springboot3.domain.Produit;
 import org.testspringboot3.test_springboot3.service.ProduitService;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/produits")

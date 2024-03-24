@@ -15,6 +15,7 @@
     <description>test_springboot3</description>
     <properties>
         <java.version>21</java.version>
+        <spotless.version>2.43.0</spotless.version>
     </properties>
     <dependencies>
         <dependency>
@@ -71,6 +72,87 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+<!--                            <goal>check</goal>-->
+                            <goal>apply</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- optional: limit format enforcement to just the files changed by this feature branch -->
+                    <ratchetFrom>origin/main</ratchetFrom>
+                    <formats>
+                        <!-- you can define as many formats as you want, each is independent -->
+                        <format>
+                            <!-- define the files to apply to -->
+                            <includes>
+                                <include>.gitattributes</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <!-- define the steps to apply to those files -->
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <tabs>true</tabs>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                    </formats>
+                    <!-- define a language-specific format -->
+                    <java>
+                        <!-- no need to specify files, inferred automatically, but you can if you want -->
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+
+                        <!-- apply a specific flavor of google-java-format and reflow long strings -->
+                        <googleJavaFormat>
+                            <version>1.21.0</version>
+                            <style>AOSP</style>
+                            <reflowLongStrings>true</reflowLongStrings>
+                            <formatJavadoc>false</formatJavadoc>
+                        </googleJavaFormat>
+
+                        <!-- make sure every file has the following copyright header.
+                          optionally, Spotless can set copyright years by digging
+                          through git history (see "license" section below) -->
+<!--                        <licenseHeader>-->
+<!--                            <content>/* (C)$YEAR */</content>  &lt;!&ndash; or <file>${project.basedir}/license-header</file> &ndash;&gt;-->
+<!--                        </licenseHeader>-->
+                    </java>
+
+<!--                    <yaml>-->
+<!--                        <includes>     &lt;!&ndash; You have to set the target manually &ndash;&gt;-->
+<!--                            <include>src/**/*.yml</include>-->
+<!--                        </includes>-->
+
+<!--                        <jackson>-->
+<!--                            <version>2.14.1</version>    &lt;!&ndash; optional: The version of 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml' to be used &ndash;&gt;-->
+<!--                            <features>                   &lt;!&ndash; optional: Customize the set of features (based on com.fasterxml.jackson.databind.SerializationFeature) &ndash;&gt;-->
+<!--                                <INDENT_OUTPUT>true</INDENT_OUTPUT>                            &lt;!&ndash; true by default &ndash;&gt;-->
+<!--                                <ORDER_MAP_ENTRIES_BY_KEYS>false</ORDER_MAP_ENTRIES_BY_KEYS>   &lt;!&ndash; false by default &ndash;&gt;-->
+<!--&lt;!&ndash;                                <ANY_OTHER_FEATURE>true|false</ANY_OTHER_FEATURE>              &lt;!&ndash; any SerializationFeature can be toggled on or off &ndash;&gt;&ndash;&gt;-->
+<!--                            </features>-->
+<!--                            <yamlFeatures>-->
+<!--&lt;!&ndash;                                <WRITE_DOC_START_MARKER>true</WRITE_DOC_START_MARKER>          &lt;!&ndash; false by default &ndash;&gt;&ndash;&gt;-->
+<!--                                <MINIMIZE_QUOTES>false</MINIMIZE_QUOTES>                       &lt;!&ndash; false by default &ndash;&gt;-->
+<!--&lt;!&ndash;                                <ANY_OTHER_FEATURE>true|false</ANY_OTHER_FEATURE>              &lt;!&ndash; any YAMLGenerator.Feature can be toggled on or off &ndash;&gt;&ndash;&gt;-->
+<!--                            </yamlFeatures>-->
+<!--&lt;!&ndash;                            <spaceBeforeSeparator>false</spaceBeforeSeparator>   &lt;!&ndash; optional: false by default &ndash;&gt;&ndash;&gt;-->
+<!--                        </jackson>-->
+<!--&lt;!&ndash;                        <jackson />    &lt;!&ndash; has its own section below &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                        <prettier />   &lt;!&ndash; has its own section below &ndash;&gt;&ndash;&gt;-->
+<!--                    </yaml>-->
                 </configuration>
             </plugin>
         </plugins>
