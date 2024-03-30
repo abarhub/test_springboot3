@@ -5,7 +5,7 @@ import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 import org.testspringboot3.test_springboot3.service.ProduitService;
 
-import java.text.ParseException;
+import java.io.IOException;
 
 @Slf4j
 public class ProduitHandler {
@@ -16,7 +16,7 @@ public class ProduitHandler {
         this.produitService = produitService;
     }
 
-    public ServerResponse getProduit(ServerRequest request) {
+    public ServerResponse getProduit(ServerRequest request) throws IOException {
         int id = 0;
         try {
             id = Integer.parseInt(request.pathVariable("produitId"));
