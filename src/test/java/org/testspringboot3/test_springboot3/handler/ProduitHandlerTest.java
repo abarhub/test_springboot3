@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
-// import org.testspringboot3.test_springboot3.configuration.WebConfigurationTest;
 import org.testspringboot3.test_springboot3.domain.Produit;
 import org.testspringboot3.test_springboot3.service.ProduitService;
 
@@ -47,10 +47,11 @@ class ProduitHandlerTest {
     @Test
     void getProduit() throws Exception {
         // ARRANGE
+        long id = 45;
         Produit produit = new Produit();
-        produit.setId(45L);
-        when(produitService.findById(45)).thenReturn(Optional.of(produit));
-        var tuple = getServerRequest("/produit2/{produitId}", 45);
+        produit.setId(id);
+        when(produitService.findById(id)).thenReturn(Optional.of(produit));
+        var tuple = getServerRequest("/produit2/{produitId}", id);
 
         var mockHttpServletRequest = tuple.request;
         ServerRequest request2 = tuple.serverRequest;
@@ -72,15 +73,42 @@ class ProduitHandlerTest {
                 .hasJsonPath("$.id")
                 .hasJsonPathValue("$.id")
                 .extractingJsonPathValue("$.id")
-                .isEqualTo(45);
+                .isEqualTo((int) id);
     }
 
     @Test
-    void getProduits() {}
+    void getProduits() throws Exception {
+
+        // ARRANGE
+        long id = 45;
+        Produit produit = new Produit();
+        produit.setId(id);
+        when(produitService.list()).thenReturn(getListProduit(10));
+        var tuple = getServerRequest("/produit2", -1);
+
+        var mockHttpServletRequest = tuple.request;
+        ServerRequest request2 = tuple.serverRequest;
+
+        // ACT
+        var res = produitHandler.getProduits(request2);
+
+        // ASSERT
+        assertNotNull(res);
+        assertTrue(res.statusCode().is2xxSuccessful());
+        assertEquals(HttpStatus.OK, res.statusCode());
+        MockHttpServletResponse mockHttpServletResponse = tuple.response;
+        var context = tuple.context;
+        res.writeTo(mockHttpServletRequest, mockHttpServletResponse, context);
+        var s = mockHttpServletResponse.getContentAsString();
+        LOGGER.info("res={}", s);
+        var jsonObject = json.from(s);
+        assertThat(jsonObject).extractingJsonPathValue("$[0].id").isEqualTo((int) 1);
+        assertThat(jsonObject).extractingJsonPathValue("$[1].id").isEqualTo((int) 2);
+    }
 
     // méthodes privés
 
-    private static TupleServer getServerRequest(String url, int idProduit) {
+    private static TupleServer getServerRequest(String url, long idProduit) {
         var mockServletContext = new MockServletContext();
         List<HttpMessageConverter<?>> listeMessageConverter =
                 List.of(new MappingJackson2HttpMessageConverter());
@@ -101,4 +129,18 @@ class ProduitHandlerTest {
             MockHttpServletRequest request,
             MockHttpServletResponse response,
             ServerResponse.Context context) {}
+
+    private List<Produit> getListProduit(int nb) {
+        List<Produit> liste = new ArrayList<>();
+        Produit produit;
+        for (int i = 0; i < nb; i++) {
+            long no = i + 1;
+            produit = new Produit();
+            produit.setId(no);
+            produit.setNom("Produit " + no);
+            produit.setDescription("Description " + no);
+            liste.add(produit);
+        }
+        return List.copyOf(liste);
+    }
 }
