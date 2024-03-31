@@ -50,20 +50,10 @@ class ProduitHandlerTest {
         Produit produit = new Produit();
         produit.setId(45L);
         when(produitService.findById(45)).thenReturn(Optional.of(produit));
-        // ServerRequest request2 = getServerRequest("/produit2/{produitId}",45);
-        var tuple=getServerRequest("/produit2/{produitId}",45);
+        var tuple = getServerRequest("/produit2/{produitId}", 45);
 
-        var tmp3=tuple.request;
-//        var mockServletContext = tuple.request;//new MockServletContext();
-        //        var toto=new MappingJackson2HttpMessageConverter()
-//        List<HttpMessageConverter<?>> listeMessageConverter =
-//                List.of(new MappingJackson2HttpMessageConverter());
-//        MockHttpServletRequestBuilder tmp2 =
-//                MockMvcRequestBuilders.get("/produit2/{produitId}", 45);
-//        var tmp3 = tmp2.buildRequest(mockServletContext);
-//        Map<String, Object> map = Map.of("produitId", "45");
-//        tmp3.setAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE, map);
-        ServerRequest request2 = tuple.serverRequest;//ServerRequest.create(tmp3, listeMessageConverter);
+        var mockHttpServletRequest = tuple.request;
+        ServerRequest request2 = tuple.serverRequest;
 
         // ACT
         var res = produitHandler.getProduit(request2);
@@ -72,10 +62,9 @@ class ProduitHandlerTest {
         assertNotNull(res);
         assertTrue(res.statusCode().is2xxSuccessful());
         assertEquals(HttpStatus.OK, res.statusCode());
-        MockHttpServletResponse mockHttpServletResponse = tuple.response;//new MockHttpServletResponse();
-        var context = tuple.context;//mock(ServerResponse.Context.class);
-//        when(context.messageConverters()).thenReturn(listeMessageConverter);
-        res.writeTo(tmp3, mockHttpServletResponse, context);
+        MockHttpServletResponse mockHttpServletResponse = tuple.response;
+        var context = tuple.context;
+        res.writeTo(mockHttpServletRequest, mockHttpServletResponse, context);
         var s = mockHttpServletResponse.getContentAsString();
         LOGGER.info("res={}", s);
         assertEquals("{\"id\":45,\"nom\":null,\"description\":null}", s);
@@ -93,18 +82,18 @@ class ProduitHandlerTest {
 
     private static TupleServer getServerRequest(String url, int idProduit) {
         var mockServletContext = new MockServletContext();
-//        List<HttpMessageConverter<?>> listeMessageConverter = List.of();
         List<HttpMessageConverter<?>> listeMessageConverter =
                 List.of(new MappingJackson2HttpMessageConverter());
         MockHttpServletRequestBuilder tmp2 = MockMvcRequestBuilders.get(url, idProduit);
-        MockHttpServletRequest tmp3 = tmp2.buildRequest(mockServletContext);
-        Map<String, Object> map = Map.of("produitId", ""+idProduit);
-        tmp3.setAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE, map);
-        ServerRequest request2 = ServerRequest.create(tmp3, listeMessageConverter);
+        MockHttpServletRequest mockHttpServletRequest = tmp2.buildRequest(mockServletContext);
+        Map<String, Object> map = Map.of("produitId", "" + idProduit);
+        mockHttpServletRequest.setAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE, map);
+        ServerRequest request2 =
+                ServerRequest.create(mockHttpServletRequest, listeMessageConverter);
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
         var context = mock(ServerResponse.Context.class);
         when(context.messageConverters()).thenReturn(listeMessageConverter);
-        return new TupleServer(request2, tmp3, mockHttpServletResponse, context);
+        return new TupleServer(request2, mockHttpServletRequest, mockHttpServletResponse, context);
     }
 
     record TupleServer(
