@@ -1,11 +1,10 @@
 package org.testspringboot3.test_springboot3.handler;
 
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 import org.testspringboot3.test_springboot3.service.ProduitService;
-
-import java.io.IOException;
 
 @Slf4j
 public class ProduitHandler {
@@ -23,9 +22,11 @@ public class ProduitHandler {
         } catch (NumberFormatException e) {
             log.error("Erreur", e);
         }
+        log.atInfo().log("get produit {}", id);
         if (id > 0) {
             var produitOpt = produitService.findById(id);
             if (produitOpt.isPresent()) {
+                log.atInfo().log("get produit");
                 return ServerResponse.ok().body(produitOpt.get());
             }
         }
@@ -33,6 +34,7 @@ public class ProduitHandler {
     }
 
     public ServerResponse getProduits(ServerRequest request) {
+        log.atInfo().log("get all produit");
         return ServerResponse.ok().body(produitService.list());
     }
 }
